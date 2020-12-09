@@ -16,18 +16,10 @@
 
 use crate::{
     chain_spec,
-    cli::{
-        Cli,
-        Subcommand,
-    },
+    cli::{Cli, Subcommand},
     service,
 };
-use sc_cli::{
-    ChainSpec,
-    Role,
-    RuntimeVersion,
-    SubstrateCli,
-};
+use sc_cli::{ChainSpec, Role, RuntimeVersion, SubstrateCli};
 
 impl SubstrateCli for Cli {
     fn impl_name() -> String {
@@ -58,11 +50,9 @@ impl SubstrateCli for Cli {
         Ok(match id {
             "dev" => Box::new(chain_spec::development_config()?),
             "" | "local" => Box::new(chain_spec::local_testnet_config()?),
-            path => {
-                Box::new(chain_spec::ChainSpec::from_json_file(
-                    std::path::PathBuf::from(path),
-                )?)
-            }
+            path => Box::new(chain_spec::ChainSpec::from_json_file(
+                std::path::PathBuf::from(path),
+            )?),
         })
     }
 

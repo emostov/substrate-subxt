@@ -18,15 +18,9 @@
 
 use crate::{
     events::EventsDecoder,
-    metadata::{
-        Metadata,
-        MetadataError,
-    },
+    metadata::{Metadata, MetadataError},
 };
-use codec::{
-    Decode,
-    Encode,
-};
+use codec::{Decode, Encode};
 use sp_core::storage::StorageKey;
 
 pub mod balances;

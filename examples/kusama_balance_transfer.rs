@@ -15,12 +15,7 @@
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
 use sp_keyring::AccountKeyring;
-use substrate_subxt::{
-    balances::*,
-    ClientBuilder,
-    KusamaRuntime,
-    PairSigner,
-};
+use substrate_subxt::{balances::*, ClientBuilder, KusamaRuntime, PairSigner};
 
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,6 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let dest = AccountKeyring::Bob.to_account_id().into();
 
     let client = ClientBuilder::<KusamaRuntime>::new().build().await?;
+
     let hash = client.transfer(&signer, &dest, 10_000).await?;
 
     println!("Balance transfer extrinsic submitted: {}", hash);

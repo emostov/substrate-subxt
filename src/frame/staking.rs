@@ -16,30 +16,14 @@
 
 //! Implements support for the pallet_staking module.
 
-use super::balances::{
-    Balances,
-    BalancesEventsDecoder as _,
-};
-use codec::{
-    Decode,
-    Encode,
-};
+use super::balances::{Balances, BalancesEventsDecoder as _};
+use codec::{Decode, Encode};
 
-use std::{
-    collections::BTreeMap,
-    fmt::Debug,
-    marker::PhantomData,
-};
+use std::{collections::BTreeMap, fmt::Debug, marker::PhantomData};
 
 pub use pallet_staking::{
-    ActiveEraInfo,
-    EraIndex,
-    Exposure,
-    Nominations,
-    RewardDestination,
-    RewardPoint,
-    StakingLedger,
-    ValidatorPrefs,
+    ActiveEraInfo, EraIndex, Exposure, Nominations, RewardDestination, RewardPoint,
+    StakingLedger, ValidatorPrefs,
 };
 
 /// Rewards for the last `HISTORY_DEPTH` eras.
@@ -202,21 +186,13 @@ mod tests {
     use super::*;
     use crate::{
         error::RuntimeError,
-        extrinsic::{
-            PairSigner,
-            Signer,
-        },
+        extrinsic::{PairSigner, Signer},
         frame::balances::*,
         runtimes::KusamaRuntime as RT,
-        ClientBuilder,
-        Error,
-        ExtrinsicSuccess,
+        ClientBuilder, Error, ExtrinsicSuccess,
     };
     use assert_matches::assert_matches;
-    use sp_core::{
-        sr25519,
-        Pair,
-    };
+    use sp_core::{sr25519, Pair};
     use sp_keyring::AccountKeyring;
 
     /// Helper function to generate a crypto pair from seed

@@ -17,19 +17,10 @@
 //! Implements support for the pallet_contracts module.
 
 use crate::frame::{
-    balances::{
-        Balances,
-        BalancesEventsDecoder,
-    },
-    system::{
-        System,
-        SystemEventsDecoder,
-    },
+    balances::{Balances, BalancesEventsDecoder},
+    system::{System, SystemEventsDecoder},
 };
-use codec::{
-    Decode,
-    Encode,
-};
+use codec::{Decode, Encode};
 use core::marker::PhantomData;
 
 /// Gas units are chosen to be represented by u64 so that gas metering
@@ -134,24 +125,11 @@ mod tests {
 
     use super::*;
     use crate::{
-        balances::*,
-        system::*,
-        Client,
-        ClientBuilder,
-        ContractsTemplateRuntime,
-        Error,
-        ExtrinsicSuccess,
-        PairSigner,
-        Signer,
+        balances::*, system::*, Client, ClientBuilder, ContractsTemplateRuntime, Error,
+        ExtrinsicSuccess, PairSigner, Signer,
     };
-    use sp_core::{
-        crypto::AccountId32,
-        sr25519::Pair,
-    };
-    use std::sync::atomic::{
-        AtomicU32,
-        Ordering,
-    };
+    use sp_core::{crypto::AccountId32, sr25519::Pair};
+    use std::sync::atomic::{AtomicU32, Ordering};
 
     static STASH_NONCE: std::sync::atomic::AtomicU32 = AtomicU32::new(0);
 

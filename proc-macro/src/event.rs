@@ -15,15 +15,9 @@
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::utils;
-use heck::{
-    CamelCase,
-    SnakeCase,
-};
+use heck::{CamelCase, SnakeCase};
 use proc_macro2::TokenStream;
-use quote::{
-    format_ident,
-    quote,
-};
+use quote::{format_ident, quote};
 use synstructure::Structure;
 
 pub fn event(s: Structure) -> TokenStream {

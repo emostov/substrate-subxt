@@ -20,26 +20,14 @@ mod extra;
 mod signer;
 
 pub use self::{
-    extra::{
-        DefaultExtra,
-        Extra,
-        SignedExtra,
-    },
-    signer::{
-        PairSigner,
-        Signer,
-    },
+    extra::{DefaultExtra, Extra, SignedExtra},
+    signer::{PairSigner, Signer},
 };
 
 use sp_runtime::traits::SignedExtension;
 use sp_version::RuntimeVersion;
 
-use crate::{
-    frame::system::System,
-    runtimes::Runtime,
-    Encoded,
-    Error,
-};
+use crate::{frame::system::System, runtimes::Runtime, Encoded, Error};
 
 /// UncheckedExtrinsic type.
 pub type UncheckedExtrinsic<T> = sp_runtime::generic::UncheckedExtrinsic<

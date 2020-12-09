@@ -21,50 +21,26 @@
 use async_std::task;
 use futures::{
     channel::mpsc,
-    compat::{
-        Compat01As03,
-        Sink01CompatExt,
-        Stream01CompatExt,
-    },
-    future::{
-        select,
-        FutureExt,
-    },
+    compat::{Compat01As03, Sink01CompatExt, Stream01CompatExt},
+    future::{select, FutureExt},
     sink::SinkExt,
     stream::StreamExt,
 };
 use futures01::sync::mpsc as mpsc01;
 use jsonrpsee::{
-    common::{
-        Request,
-        Response,
-    },
+    common::{Request, Response},
     transport::TransportClient,
 };
 use sc_network::config::TransportConfig;
 pub use sc_service::{
-    config::{
-        DatabaseConfig,
-        KeystoreConfig,
-    },
+    config::{DatabaseConfig, KeystoreConfig},
     Error as ServiceError,
 };
 use sc_service::{
-    config::{
-        NetworkConfiguration,
-        TaskType,
-        TelemetryEndpoints,
-    },
-    ChainSpec,
-    Configuration,
-    RpcHandlers,
-    RpcSession,
-    TaskManager,
+    config::{NetworkConfiguration, TaskType, TelemetryEndpoints},
+    ChainSpec, Configuration, RpcHandlers, RpcSession, TaskManager,
 };
-use std::{
-    future::Future,
-    pin::Pin,
-};
+use std::{future::Future, pin::Pin};
 use thiserror::Error;
 
 /// Error thrown by the client.
@@ -177,11 +153,9 @@ impl From<Role> for sc_service::Role {
     fn from(role: Role) -> Self {
         match role {
             Role::Light => Self::Light,
-            Role::Authority(_) => {
-                Self::Authority {
-                    sentry_nodes: Default::default(),
-                }
-            }
+            Role::Authority(_) => Self::Authority {
+                sentry_nodes: Default::default(),
+            },
         }
     }
 }
@@ -250,11 +224,9 @@ impl<C: ChainSpec + 'static> SubxtClientConfig<C> {
             impl_version: self.impl_version.to_string(),
             chain_spec: Box::new(self.chain_spec),
             role: self.role.into(),
-            task_executor: (move |fut, ty| {
-                match ty {
-                    TaskType::Async => task::spawn(fut),
-                    TaskType::Blocking => task::spawn_blocking(|| task::block_on(fut)),
-                }
+            task_executor: (move |fut, ty| match ty {
+                TaskType::Async => task::spawn(fut),
+                TaskType::Blocking => task::spawn_blocking(|| task::block_on(fut)),
             })
             .into(),
             database: self.db,
@@ -308,9 +280,7 @@ mod tests {
     use async_std::path::Path;
     use sp_keyring::AccountKeyring;
     use substrate_subxt::{
-        balances::TransferCallExt,
-        ClientBuilder,
-        KusamaRuntime as NodeTemplateRuntime,
+        balances::TransferCallExt, ClientBuilder, KusamaRuntime as NodeTemplateRuntime,
         PairSigner,
     };
     use tempdir::TempDir;

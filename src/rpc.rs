@@ -19,60 +19,30 @@
 // Related: https://github.com/paritytech/substrate-subxt/issues/66
 #![allow(irrefutable_let_patterns)]
 
-use codec::{
-    Decode,
-    Encode,
-    Error as CodecError,
-};
-use core::{
-    convert::TryInto,
-    marker::PhantomData,
-};
+use codec::{Decode, Encode, Error as CodecError};
+use core::{convert::TryInto, marker::PhantomData};
 use frame_metadata::RuntimeMetadataPrefixed;
 use jsonrpsee::{
     client::Subscription,
-    common::{
-        to_value as to_json_value,
-        Params,
-    },
+    common::{to_value as to_json_value, Params},
     Client,
 };
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use sp_core::{
-    storage::{
-        StorageChangeSet,
-        StorageData,
-        StorageKey,
-    },
-    twox_128,
-    Bytes,
+    storage::{StorageChangeSet, StorageData, StorageKey},
+    twox_128, Bytes,
 };
-use sp_rpc::{
-    list::ListOrValue,
-    number::NumberOrHex,
-};
+use sp_rpc::{list::ListOrValue, number::NumberOrHex};
 use sp_runtime::{
-    generic::{
-        Block,
-        SignedBlock,
-    },
+    generic::{Block, SignedBlock},
     traits::Hash,
 };
 use sp_version::RuntimeVersion;
 
 use crate::{
     error::Error,
-    events::{
-        EventsDecoder,
-        RawEvent,
-    },
-    frame::{
-        system::System,
-        Event,
-    },
+    events::{EventsDecoder, RawEvent},
+    frame::{system::System, Event},
     metadata::Metadata,
     runtimes::Runtime,
     subscription::EventSubscription,
@@ -480,7 +450,7 @@ impl<T: Runtime> Rpc<T> {
                         None => {
                             Err(format!("Failed to find block {:?}", block_hash).into())
                         }
-                    }
+                    };
                 }
                 TransactionStatus::Invalid => return Err("Extrinsic Invalid".into()),
                 TransactionStatus::Usurped(_) => return Err("Extrinsic Usurped".into()),

@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
-use sc_cli::{
-    BuildSpecCmd,
-    PurgeChainCmd,
-    RunCmd,
-};
+use sc_cli::{BuildSpecCmd, PurgeChainCmd, RunCmd};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]

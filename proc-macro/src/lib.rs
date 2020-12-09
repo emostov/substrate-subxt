@@ -25,10 +25,7 @@ mod utils;
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
-use synstructure::{
-    decl_derive,
-    Structure,
-};
+use synstructure::{decl_derive, Structure};
 
 /// Register type sizes for [EventsDecoder](struct.EventsDecoder.html) and set the `MODULE`.
 ///

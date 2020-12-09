@@ -14,25 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
-use codec::{
-    Decode,
-    Encode,
-};
-use core::{
-    fmt::Debug,
-    marker::PhantomData,
-};
+use codec::{Decode, Encode};
+use core::{fmt::Debug, marker::PhantomData};
 use sp_runtime::{
-    generic::Era,
-    traits::SignedExtension,
-    transaction_validity::TransactionValidityError,
+    generic::Era, traits::SignedExtension, transaction_validity::TransactionValidityError,
 };
 
 use crate::{
-    frame::{
-        balances::Balances,
-        system::System,
-    },
+    frame::{balances::Balances, system::System},
     runtimes::Runtime,
 };
 

@@ -17,34 +17,20 @@
 //! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 #![allow(clippy::type_complexity)]
 
-use sc_client_api::{
-    ExecutorProvider,
-    RemoteBackend,
-};
+use sc_client_api::{ExecutorProvider, RemoteBackend};
 use sc_executor::native_executor_instance;
 pub use sc_executor::NativeExecutor;
 use sc_finality_grandpa::{
-    FinalityProofProvider as GrandpaFinalityProofProvider,
-    SharedVoterState,
+    FinalityProofProvider as GrandpaFinalityProofProvider, SharedVoterState,
 };
 use sc_service::{
-    error::Error as ServiceError,
-    Configuration,
-    PartialComponents,
-    RpcHandlers,
+    error::Error as ServiceError, Configuration, PartialComponents, RpcHandlers,
     TaskManager,
 };
 use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
 use sp_inherents::InherentDataProviders;
-use std::{
-    sync::Arc,
-    time::Duration,
-};
-use test_node_runtime::{
-    self,
-    opaque::Block,
-    RuntimeApi,
-};
+use std::{sync::Arc, time::Duration};
+use test_node_runtime::{self, opaque::Block, RuntimeApi};
 
 // Our native executor instance.
 native_executor_instance!(

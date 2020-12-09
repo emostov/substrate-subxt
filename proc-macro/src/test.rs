@@ -17,15 +17,9 @@
 use crate::utils;
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
-use quote::{
-    format_ident,
-    quote,
-};
+use quote::{format_ident, quote};
 use syn::{
-    parse::{
-        Parse,
-        ParseStream,
-    },
+    parse::{Parse, ParseStream},
     punctuated::Punctuated,
 };
 

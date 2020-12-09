@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
-use substrate_subxt::{
-    system::AccountStoreExt,
-    ClientBuilder,
-    DefaultNodeRuntime,
-};
+use substrate_subxt::{system::AccountStoreExt, ClientBuilder, DefaultNodeRuntime};
 
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

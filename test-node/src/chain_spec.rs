@@ -16,26 +16,12 @@
 
 use sc_service::ChainType;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_core::{
-    sr25519,
-    Pair,
-    Public,
-};
+use sp_core::{sr25519, Pair, Public};
 use sp_finality_grandpa::AuthorityId as GrandpaId;
-use sp_runtime::traits::{
-    IdentifyAccount,
-    Verify,
-};
+use sp_runtime::traits::{IdentifyAccount, Verify};
 use test_node_runtime::{
-    AccountId,
-    AuraConfig,
-    BalancesConfig,
-    GenesisConfig,
-    GrandpaConfig,
-    Signature,
-    SudoConfig,
-    SystemConfig,
-    WASM_BINARY,
+    AccountId, AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature,
+    SudoConfig, SystemConfig, WASM_BINARY,
 };
 
 // The URL for the telemetry server.

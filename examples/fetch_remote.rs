@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
-use substrate_subxt::{
-    ClientBuilder,
-    KusamaRuntime,
-};
+use substrate_subxt::{ClientBuilder, KusamaRuntime};
 
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

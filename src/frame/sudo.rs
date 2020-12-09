@@ -17,10 +17,7 @@
 //! Implements support for the frame_sudo module.
 
 use crate::{
-    frame::system::{
-        System,
-        SystemEventsDecoder,
-    },
+    frame::system::{System, SystemEventsDecoder},
     Encoded,
 };
 use codec::Encode;
@@ -58,16 +55,10 @@ pub struct SudoUncheckedWeightCall<'a, T: Sudo> {
 mod tests {
     use super::*;
     use crate::{
-        error::{
-            Error,
-            RuntimeError,
-        },
+        error::{Error, RuntimeError},
         extrinsic::PairSigner,
         frame::balances::TransferCall,
-        tests::{
-            test_client,
-            TestRuntime,
-        },
+        tests::{test_client, TestRuntime},
     };
     use sp_keyring::AccountKeyring;
 
@@ -85,13 +76,11 @@ mod tests {
             .unwrap();
 
         let res = client.sudo_and_watch(&alice, &call).await;
-        assert!(
-            if let Err(Error::Runtime(RuntimeError::BadOrigin)) = res {
-                true
-            } else {
-                false
-            }
-        );
+        assert!(if let Err(Error::Runtime(RuntimeError::BadOrigin)) = res {
+            true
+        } else {
+            false
+        });
     }
 
     #[async_std::test]
@@ -110,12 +99,10 @@ mod tests {
         let res = client
             .sudo_unchecked_weight_and_watch(&alice, &call, 0u64)
             .await;
-        assert!(
-            if let Err(Error::Runtime(RuntimeError::BadOrigin)) = res {
-                true
-            } else {
-                false
-            }
-        );
+        assert!(if let Err(Error::Runtime(RuntimeError::BadOrigin)) = res {
+            true
+        } else {
+            false
+        });
     }
 }

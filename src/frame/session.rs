@@ -15,20 +15,11 @@
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
 //! Session support
-use crate::frame::system::{
-    System,
-    SystemEventsDecoder as _,
-};
+use crate::frame::system::{System, SystemEventsDecoder as _};
 use codec::Encode;
 use frame_support::Parameter;
-use sp_runtime::traits::{
-    Member,
-    OpaqueKeys,
-};
-use std::{
-    fmt::Debug,
-    marker::PhantomData,
-};
+use sp_runtime::traits::{Member, OpaqueKeys};
+use std::{fmt::Debug, marker::PhantomData};
 use substrate_subxt_proc_macro::Store;
 
 /// Impls `Default::default` for some types that have a `_runtime` field of type

@@ -15,20 +15,11 @@
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::utils;
-use heck::{
-    CamelCase,
-    SnakeCase,
-};
+use heck::{CamelCase, SnakeCase};
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
-use quote::{
-    format_ident,
-    quote,
-};
-use syn::parse::{
-    Parse,
-    ParseStream,
-};
+use quote::{format_ident, quote};
+use syn::parse::{Parse, ParseStream};
 use synstructure::Structure;
 
 mod kw {

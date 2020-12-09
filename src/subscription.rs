@@ -20,15 +20,8 @@ use std::collections::VecDeque;
 
 use crate::{
     error::Error,
-    events::{
-        EventsDecoder,
-        Raw,
-        RawEvent,
-    },
-    frame::{
-        system::Phase,
-        Event,
-    },
+    events::{EventsDecoder, Raw, RawEvent},
+    frame::{system::Phase, Event},
     runtimes::Runtime,
 };
 
@@ -81,17 +74,17 @@ impl<T: Runtime> EventSubscription<T> {
     pub async fn next(&mut self) -> Option<Result<RawEvent, Error>> {
         loop {
             if let Some(event) = self.events.pop_front() {
-                return Some(Ok(event))
+                return Some(Ok(event));
             }
             if self.finished {
-                return None
+                return None;
             }
             let change_set = self.subscription.next().await;
             if let Some(hash) = self.block.as_ref() {
                 if &change_set.block == hash {
                     self.finished = true;
                 } else {
-                    continue
+                    continue;
                 }
             }
             for (_key, data) in change_set.changes {
@@ -104,7 +97,7 @@ impl<T: Runtime> EventSubscription<T> {
                         if let Phase::ApplyExtrinsic(i) = phase {
                             if let Some(ext_index) = self.extrinsic {
                                 if i as usize != ext_index {
-                                    continue
+                                    continue;
                                 }
                             }
                             let event = match raw {
@@ -113,7 +106,7 @@ impl<T: Runtime> EventSubscription<T> {
                             };
                             if let Some((module, variant)) = self.event {
                                 if event.module != module || event.variant != variant {
-                                    continue
+                                    continue;
                                 }
                             }
                             self.events.push_back(event);

@@ -16,17 +16,9 @@
 
 use sp_keyring::AccountKeyring;
 use substrate_subxt::{
-    balances::{
-        BalancesEventsDecoder,
-        TransferCallExt,
-        TransferEvent,
-    },
+    balances::{BalancesEventsDecoder, TransferCallExt, TransferEvent},
     sp_core::Decode,
-    ClientBuilder,
-    DefaultNodeRuntime,
-    EventSubscription,
-    EventsDecoder,
-    PairSigner,
+    ClientBuilder, DefaultNodeRuntime, EventSubscription, EventsDecoder, PairSigner,
 };
 
 #[async_std::main]

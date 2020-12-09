@@ -17,26 +17,13 @@
 #[macro_use]
 extern crate substrate_subxt;
 
-use codec::{
-    Codec,
-    Decode,
-    Encode,
-};
+use codec::{Codec, Decode, Encode};
 use sp_keyring::AccountKeyring;
 use std::fmt::Debug;
 use substrate_subxt::{
-    sp_runtime::traits::{
-        AtLeast32Bit,
-        MaybeSerialize,
-        Member,
-    },
-    system::{
-        System,
-        SystemEventsDecoder,
-    },
-    ClientBuilder,
-    KusamaRuntime,
-    PairSigner,
+    sp_runtime::traits::{AtLeast32Bit, MaybeSerialize, Member},
+    system::{System, SystemEventsDecoder},
+    ClientBuilder, KusamaRuntime, PairSigner,
 };
 
 #[module]

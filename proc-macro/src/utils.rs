@@ -14,25 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
-use proc_macro2::{
-    Span,
-    TokenStream,
-};
-use quote::{
-    format_ident,
-    quote,
-};
+use proc_macro2::{Span, TokenStream};
+use quote::{format_ident, quote};
 use syn::{
-    parse::{
-        Parse,
-        ParseStream,
-    },
+    parse::{Parse, ParseStream},
     punctuated::Punctuated,
 };
-use synstructure::{
-    BindingInfo,
-    Structure,
-};
+use synstructure::{BindingInfo, Structure};
 
 pub fn use_crate(name: &str) -> syn::Ident {
     opt_crate(name).unwrap_or_else(|| syn::Ident::new("crate", Span::call_site()))
@@ -151,18 +139,16 @@ pub fn type_params(generics: &syn::Generics) -> Vec<TokenStream> {
     generics
         .params
         .iter()
-        .filter_map(|g| {
-            match g {
-                syn::GenericParam::Type(p) => {
-                    let ident = &p.ident;
-                    Some(quote!(#ident))
-                }
-                syn::GenericParam::Lifetime(p) => {
-                    let lifetime = &p.lifetime;
-                    Some(quote!(#lifetime))
-                }
-                syn::GenericParam::Const(_) => None,
+        .filter_map(|g| match g {
+            syn::GenericParam::Type(p) => {
+                let ident = &p.ident;
+                Some(quote!(#ident))
             }
+            syn::GenericParam::Lifetime(p) => {
+                let lifetime = &p.lifetime;
+                Some(quote!(#lifetime))
+            }
+            syn::GenericParam::Const(_) => None,
         })
         .collect()
 }
@@ -173,7 +159,7 @@ pub fn parse_option(ty: &syn::Type) -> Option<syn::Type> {
             if &seg.ident == "Option" {
                 if let syn::PathArguments::AngleBracketed(args) = &seg.arguments {
                     if let Some(syn::GenericArgument::Type(ty)) = args.args.first() {
-                        return Some(ty.clone())
+                        return Some(ty.clone());
                     }
                 }
             }

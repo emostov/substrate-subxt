@@ -16,32 +16,15 @@
 
 //! Implements support for the frame_system module.
 
-use codec::{
-    Codec,
-    Decode,
-    Encode,
-};
+use codec::{Codec, Decode, Encode};
 use core::marker::PhantomData;
-use frame_support::{
-    weights::DispatchInfo,
-    Parameter,
-};
+use frame_support::{weights::DispatchInfo, Parameter};
 use serde::de::DeserializeOwned;
 use sp_runtime::{
     traits::{
-        AtLeast32Bit,
-        AtLeast32BitUnsigned,
-        Bounded,
-        CheckEqual,
-        Extrinsic,
-        Hash,
-        Header,
-        MaybeDisplay,
-        MaybeMallocSizeOf,
-        MaybeSerialize,
-        MaybeSerializeDeserialize,
-        Member,
-        SimpleBitOps,
+        AtLeast32Bit, AtLeast32BitUnsigned, Bounded, CheckEqual, Extrinsic, Hash, Header,
+        MaybeDisplay, MaybeMallocSizeOf, MaybeSerialize, MaybeSerializeDeserialize,
+        Member, SimpleBitOps,
     },
     DispatchError,
 };

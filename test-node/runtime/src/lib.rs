@@ -26,35 +26,19 @@
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
 use pallet_grandpa::{
-    fg_primitives,
-    AuthorityId as GrandpaId,
-    AuthorityList as GrandpaAuthorityList,
+    fg_primitives, AuthorityId as GrandpaId, AuthorityList as GrandpaAuthorityList,
 };
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_core::{
-    crypto::KeyTypeId,
-    OpaqueMetadata,
-};
+use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
-    create_runtime_str,
-    generic,
-    impl_opaque_keys,
+    create_runtime_str, generic, impl_opaque_keys,
     traits::{
-        BlakeTwo256,
-        Block as BlockT,
-        IdentifyAccount,
-        IdentityLookup,
-        NumberFor,
-        Saturating,
-        Verify,
+        BlakeTwo256, Block as BlockT, IdentifyAccount, IdentityLookup, NumberFor,
+        Saturating, Verify,
     },
-    transaction_validity::{
-        TransactionSource,
-        TransactionValidity,
-    },
-    ApplyExtrinsicResult,
-    MultiSignature,
+    transaction_validity::{TransactionSource, TransactionValidity},
+    ApplyExtrinsicResult, MultiSignature,
 };
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
@@ -63,21 +47,13 @@ use sp_version::RuntimeVersion;
 
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
-    construct_runtime,
-    parameter_types,
-    traits::{
-        KeyOwnerProofSystem,
-        Randomness,
-    },
+    construct_runtime, parameter_types,
+    traits::{KeyOwnerProofSystem, Randomness},
     weights::{
         constants::{
-            BlockExecutionWeight,
-            ExtrinsicBaseWeight,
-            RocksDbWeight,
-            WEIGHT_PER_SECOND,
+            BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND,
         },
-        IdentityFee,
-        Weight,
+        IdentityFee, Weight,
     },
     StorageValue,
 };
@@ -85,10 +61,7 @@ pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
-pub use sp_runtime::{
-    Perbill,
-    Permill,
-};
+pub use sp_runtime::{Perbill, Permill};
 
 /// An index to a block.
 pub type BlockNumber = u32;
