@@ -10,7 +10,7 @@
 // You should have received a copy of the GNU General Public License
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
-//! An offline version of the client that is suitable for use on air gapped 
+//! An offline version of the client that is suitable for use on air gapped
 //! machines.
 
 use frame_metadata::RuntimeMetadataPrefixed;
@@ -45,6 +45,7 @@ pub struct OfflineClientOptions<T: Runtime> {
     properties: SystemProperties,
     runtime_version: RuntimeVersion,
 }
+
 
 impl<T: Runtime> OfflineClientBuilder<T> {
     /// Create a new `OfflineClientBuilder`
@@ -163,3 +164,49 @@ impl<T: Runtime> OfflineClient<T> {
         Ok(signed)
     }
 }
+
+pub mod util {
+    //! Utilities for using the offline client
+
+    use super::*;
+    use std::fs::File;
+    use std::io::prelude::*;
+    use serde::{Deserialize, Serialize};
+    use hex;
+
+    #[derive(Serialize, Deserialize)]
+    struct RPCResponse {
+        jsonrpc: String,
+        result: String
+    }
+
+    /// Read in runtime metadata from the JSON response to an RPC.
+    ///
+    /// The is expected to contain a JSON object with the form:
+    ///
+    /// ```no_run
+    /// {"jsonrpc":"2.0","result":"0xddb9934d1ef19d9b1cb1e10857b6e4a24fe6c495d7a8632288235c1412538b84","id":1}
+    /// ```
+    ///
+    /// where `result` is the the field to return as `Bytes`.
+    pub fn rpc_response_to_bytes(file_name: &str) -> Result<Vec<u8>, Error> {
+        let mut file = File::open(file_name)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+
+        let rpc_response: RPCResponse = serde_json::from_str(&contents)?;
+        let bytes = hex::decode(rpc_response.result)?;
+
+        Ok(bytes)
+    }
+}
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//      #[test]
+//     fn test result_to_bytes() {
+
+//     }
+
+// }
