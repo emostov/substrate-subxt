@@ -59,7 +59,7 @@ use sp_core::{
 };
 pub use sp_runtime::traits::SignedExtension;
 pub use sp_version::RuntimeVersion;
-use std::marker::PhantomData;
+use std::{ convert::TryInto, marker::PhantomData };
 
 mod error;
 mod events;
@@ -104,16 +104,17 @@ pub struct OfflineClientBuilder<T: Runtime> {
 
 /// Required options for building `OfflineClient`.
 pub struct OfflineClientOptions<T: Runtime> {
-    // TODO figure out how to read in T::Hash as a hex string
+    // TODO figure out how to read in from file
     genesis_hash: T::Hash,
-    // TODO figure out how to read in a hex string and use as metadata bytes
-    metaRpc: Bytes,
+    // TODO figure out how to read in from file
+    metadata: Bytes,
     // DEV NOTE properties and runtime_version can probs just be hardcoded in a constants file
-    properties: SystemProperties, 
+    properties: SystemProperties,
     runtime_version: RuntimeVersion,
 }
 
 impl<T: Runtime> OfflineClientBuilder<T> {
+    /// Create a new `OfflineClientBuilder`
     pub fn new() -> Self {
         Self {
             _marker: std::marker::PhantomData,
@@ -121,17 +122,19 @@ impl<T: Runtime> OfflineClientBuilder<T> {
         }
     }
 
+    /// Set the page size.
     pub fn set_page_size(mut self, size: u32) -> Self {
         self.page_size = Some(size);
         self
     }
 
-    fn build(
+    /// Create a new `OfflineClient`
+    pub fn build(
         self,
         opts: OfflineClientOptions<T>,
     ) -> Result<OfflineClient<T>, Error> {
-        let meta: RuntimeMetadataPrefixed = Decode::decode(&mut &opts.metaRpc[..])?;
-        let metadata: Metadata = meta.try_into()?;
+        let metadata_prefixed: RuntimeMetadataPrefixed = Decode::decode(&mut &opts.metadata[..])?;
+        let metadata: Metadata = metadata_prefixed.try_into()?;
 
         Ok(OfflineClient {
             genesis_hash: opts.genesis_hash,
