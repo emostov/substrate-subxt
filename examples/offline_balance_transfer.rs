@@ -15,15 +15,13 @@
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
 use sp_keyring::AccountKeyring;
-use substrate_subxt::{KusamaRuntime, PairSigner, SystemProperties, balances::{
-    Balances,
-    TransferCall,
-}, offline_client::{
+use substrate_subxt::{KusamaRuntime, PairSigner, SystemProperties, balances, offline_client::{
     OfflineClientBuilder,
     OfflineClientOptions,
     util,
     RuntimeVersion
 }};
+
 use std::env;
 
 /// Prior to running the following example, you will need to start up a polkadot
@@ -72,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Declare the extrinsic arguments. Note: find structs for declaring
     // arguments in the modules corresponding to pallet name
     let dest = AccountKeyring::Bob.to_account_id();
-    let call = TransferCall {
+    let call = balances::TransferCall {
         to: &dest,
         amount: 12_345,
     };
@@ -82,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     signer.set_nonce(0);
 
     // Create the signed extrinsic
-    let signed_extrinsic = client.create_signed(call, &signer).await?;
+    let signed_extrinsic = client.create_signed_encoded(call, &signer).await?;
 
     println!("Balance transfer extrinsic submitted: {:#?}", signed_extrinsic);
 

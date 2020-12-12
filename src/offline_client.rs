@@ -18,6 +18,7 @@ use codec::Decode;
 use frame_metadata::RuntimeMetadataPrefixed;
 use sp_runtime::traits::SignedExtension;
 pub use sp_version::RuntimeVersion;
+use codec::Encode;
 
 use crate::{
     error::Error,
@@ -153,8 +154,23 @@ impl<T: Runtime> OfflineClient<T> {
         )
         .await?;
 
-        En
         Ok(signed)
+    }
+
+    /// Created an encoded, signed extrinsic that is ready to broadcast.
+    pub async fn create_signed_encoded<C: Call<T> + Send + Sync>(
+        &self,
+        call: C,
+        signer: &(dyn Signer<T> + Send + Sync),
+    ) -> Result<String, Error>
+    where
+    <<T::Extra as SignedExtra<T>>::Extra as SignedExtension>::AdditionalSigned:
+        Send + Sync,
+    {
+        let signed_extrinsic = self.create_signed(call, signer).await?.encode();
+        let hex = format!("{}{}", "0x", hex::encode(signed_extrinsic));
+
+        Ok(hex)
     }
 }
 
