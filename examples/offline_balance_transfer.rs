@@ -80,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create the signed extrinsic
     let signed_extrinsic = client.create_signed_encoded(call, &signer).await?;
 
-    println!("Balance transfer extrinsic submitted: {:#?}", signed_extrinsic);
+    println!("Transaction to submit: {:#?}", signed_extrinsic);
 
     Ok(())
 }
