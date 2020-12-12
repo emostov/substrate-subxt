@@ -213,45 +213,9 @@ pub mod util {
         Ok(bytes)
     }
 
-    /// Deserialize `RuntimeVersion` from the `result` in a JSON response to the
-    /// RPC `chain_getRuntimeVersion`.
-    ///
-    /// The file expected to contain a JSON object with the form:
-    ///
-    /// ```no_run
-    /// {"jsonrpc":"2.0","result":"...","id":1}
-    /// ```
-    ///
-    /// where `result` is a field representing s`RuntimeVersion` in JSON.
-    pub fn rpc_to_runtime_version(path: PathBuf) -> Result<RuntimeVersion, Error> {
-        let contents = file_to_string(path)?;
-
-        let rpc_response: RpcRes<RuntimeVersion> = serde_json::from_str(&contents)?;
-
-        Ok(rpc_response.result)
-    }
-
-    /// Deserialize `SystemProperties` from the `result` in a JSON response to the
-    /// RPC `system_properties`.
-    ///
-    /// The file expected to contain a JSON object with the form:
-    ///
-    /// ```no_run
-    /// {"jsonrpc":"2.0","result":"...","id":1}
-    /// ```
-    ///
-    /// where `result` is a field representing s`SystemProperties` in JSON.
-    pub fn rpc_to_properties(path: PathBuf) -> Result<SystemProperties, Error> {
-        let contents = file_to_string(path)?;
-
-        let rpc_response: RpcRes<SystemProperties> = serde_json::from_str(&contents)?;
-
-        Ok(rpc_response.result)
-    }
-
     /// Deserialize a struct from the `result` in a JSON response to the
-    /// RPC `system_properties`. Relevant structs to deserialize include
-    /// `SystemProperties` and `RuntimeVersion`.
+    /// RPC `system_properties`. (Relevant structs to deserialize include
+    /// `SystemProperties` and `RuntimeVersion`.)
     ///
     /// The file expected to contain a JSON object with the form:
     ///
