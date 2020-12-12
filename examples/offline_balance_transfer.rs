@@ -28,9 +28,10 @@ use std::env;
 /// `--dev` node to get the genesis hash and runtime metadata. (To do this, go
 /// to paritytech/polkadot on github, follow the instructions to obtain the desired
 /// binary, and then run `polkadot --dev`) Once the node is running `cd` into
-/// into this repo's `examples` directory.
+/// into this repo's `examples` directory. (We assume the nodes http RPC port is
+/// accessible via default `http://localhost:9933`)
 ///
-/// 1) Get the runtime metadata by running
+/// 1) Get the runtime metadata by running:
 ///
 /// ```bash
 /// curl -X POST -H 'Content-Type: application/json' \
@@ -45,6 +46,12 @@ use std::env;
 /// -d '{"jsonrpc":"2.0","id": 1, "method":"chain_getBlockHash", "params": [0]}' \
 /// -o chain_getBlockHash_res.json http://localhost:9933
 /// ```
+///
+/// 3) Get the runtime version info by running:
+///
+/// curl -X POST -H 'Content-Type: application/json' \
+/// -d '{"jsonrpc":"2.0","id": 1, "method":"chain_getRuntimeVersion" }' \
+/// -o chain_getBlockHash_res.json http://localhost:9933
 ///
 /// Then to run this example, go to the root directory and run:
 ///
@@ -65,8 +72,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let client = OfflineClientBuilder::<KusamaRuntime>::new().build(options)?;
 
-    // Declare the extrinsic arguments. Note: find structs for declaring
-    // arguments in the modules corresponding to pallet name
+    // Declare the extrinsic arguments. Note: You can find structs for declaring
+    // arguments in the subxt modules corresponding to pallet name.
     let dest = AccountKeyring::Bob.to_account_id();
     let call = balances::TransferCall {
         to: &dest,
