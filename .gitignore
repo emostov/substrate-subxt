@@ -1,3 +1,6 @@
 /target
 **/*.rs.bk
 Cargo.lock
+
+# Ignore .json that user may generate for offline_balance_transfer example
+**/*.json

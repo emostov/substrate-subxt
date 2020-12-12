@@ -72,6 +72,7 @@ mod metadata;
 mod rpc;
 mod runtimes;
 mod subscription;
+pub mod offline_client;
 
 pub use crate::{
     error::Error,
