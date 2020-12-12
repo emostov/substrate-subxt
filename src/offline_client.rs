@@ -37,10 +37,14 @@ pub struct OfflineClientBuilder<T: Runtime> {
 // TODO create an enum that is T::Hash, Metadata, SystemProperties, RuntimeVersion, Vec<u8>
 /// Required options for building `OfflineClient`.
 pub struct OfflineClientOptions {
-    genesis_hash: Vec<u8>,
-    metadata: Vec<u8>,
-    properties: SystemProperties,
-    runtime_version: RuntimeVersion,
+    /// Scale encoded genesis hash
+    pub genesis_hash: Vec<u8>,
+    /// Scale encoded metadata with prefix
+    pub metadata: Vec<u8>,
+    /// SystemProperties
+    pub properties: SystemProperties,
+    /// RuntimeVersion
+    pub runtime_version: RuntimeVersion,
 }
 
 impl<T: Runtime> OfflineClientBuilder<T> {
@@ -148,6 +152,8 @@ impl<T: Runtime> OfflineClient<T> {
             signer,
         )
         .await?;
+
+        En
         Ok(signed)
     }
 }
@@ -156,6 +162,7 @@ pub mod util {
     //! Utilities for using the offline client
 
     use super::*;
+    use std::path::PathBuf;
     use hex;
     use serde::{Deserialize, Serialize};
     use std::fs::File;
@@ -177,20 +184,22 @@ pub mod util {
     /// ```
     ///
     /// where `result` is a field representing scale encoded bytes.
-    pub fn rpc_to_bytes(path: &str) -> Result<Vec<u8>, Error> {
+    pub fn rpc_to_bytes(path: PathBuf) -> Result<Vec<u8>, Error> {
         let mut file = File::open(path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
 
         let rpc_response: RpcRes<String> = serde_json::from_str(&contents)?;
-        let bytes = hex::decode(rpc_response.result)?;
+        // remove `0x` from the hex string.
+        let hex = &rpc_response.result[2..];
+        let bytes = hex::decode(hex)?;
 
         Ok(bytes)
     }
 
     /// Deserialize RuntimeVersion from the JSON response to the RPC
     /// `chain_getRuntimeVersion`
-    pub fn rpc_to_runtime_version(path: &str) -> Result<RuntimeVersion, Error> {
+    pub fn rpc_to_runtime_version(path: PathBuf) -> Result<RuntimeVersion, Error> {
         let mut file = File::open(path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
@@ -202,7 +211,7 @@ pub mod util {
 
     /// Deserialize SystemProperties from the JSON response to the RPC
     /// `system_properties`
-    pub fn rpc_to_properties(path: &str) -> Result<SystemProperties, Error> {
+    pub fn rpc_to_properties(path: PathBuf) -> Result<SystemProperties, Error> {
         let mut file = File::open(path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
