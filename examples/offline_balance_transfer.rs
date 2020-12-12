@@ -23,29 +23,34 @@ use substrate_subxt::{KusamaRuntime, PairSigner, SystemProperties, balances, off
 }};
 use std::env;
 
+/// **N.B.** [At the time of writing all transactions default to being immortal.
+/// Please learn more about best practices with transaction mortality before
+/// continuing.](https://wiki.polkadot.network/docs/en/build-protocol-info#transaction-mortality)
+///
 /// We use a `--dev` node for this example because it easily gives us access to
 /// the canonical Alice and Bob accounts which have pre-seeded funds from genesis.
 ///
-/// To get a local development node started, follow the instructions in th
+/// To get a local development node started, follow the instructions in the
 /// paritytech/polkadot README and then start the dev node with the command
 /// described [here](https://github.com/paritytech/polkadot#development).
 ///
-/// For this example, we assume the nodes http RPC port is accessible via,
-///`http://localhost:9933` which is the default.
+/// For this example, we assume the nodes http RPC port is accessible via
+///`http://localhost:9933`, which is the default.
 ///
 /// Prior to running the following example, you will need to start up a polkadot
 /// `--dev` node to get the genesis hash, runtime metadata, and runtime version.
 /// Note that you will also need system properties, which we hard code for this
 /// example due to the setup of the `--dev` node. In most cases, system properties
 /// and genesis hash can be hardcoded for a network while runtime metadata and
-/// runtime version will need to be updated after any network upgrade.
+/// runtime version will need to be updated after a runtime upgrade.
 ///
 /// Below are `curl` commands to fetch the aforementioned information and write
-/// to .json files. Note the file names the curl command outputs to correspond to
-/// to the file name the example code expects. For air gapped signing, these
-/// would need to be fetched on an online machine and transferred to the air
+/// to .json files. Note the files the curl command outputs correspond to
+/// to the file names the example code expects. For air gapped signing, these
+/// would need to be fetched with an online machine and transferred to the air
 /// gapped machine.
-/// Make sure to run the following in the root directory of this project
+///
+/// Make sure to run the following in the root directory of this project.
 ///
 /// 1) Get the runtime metadata by running:
 ///
@@ -105,7 +110,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // N.B. The signer must have a nonce set. On a related note, remember to increment the nonce.
     signer.set_nonce(0); // Assume this is Alice's first transaction
 
-    // Create the signed extrinsic
+    // Create the signed extrinsic, which can be copy + pasted as is from the terminal and broadcasted
     let signed_extrinsic = client.create_signed_encoded(call, &signer).await?;
 
     println!("Transaction to submit: {:#?}", signed_extrinsic);
