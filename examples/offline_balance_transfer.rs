@@ -51,8 +51,6 @@ use std::env;
 /// ```bash
 /// cargo run --example offline_balance_transfer
 /// ```
-
-
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
@@ -89,8 +87,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
 fn gather_inputs() -> Result<(Vec<u8>, Vec<u8>, RuntimeVersion, SystemProperties), Box<dyn std::error::Error>> {
-    // TODO figure out commenting situation here
-
     // Path to the directory where the RPC responses reside
     let base_path = env::current_dir()?.join("examples");
 
