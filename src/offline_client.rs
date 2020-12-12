@@ -13,70 +13,57 @@
 //! An offline version of the client that is suitable for use on air gapped
 //! machines.
 
-use frame_metadata::RuntimeMetadataPrefixed;
-use::core::{ marker::PhantomData, convert::TryInto};
-use sp_version::RuntimeVersion;
-use sp_runtime::traits::SignedExtension;
+use ::core::{convert::TryInto, marker::PhantomData};
 use codec::Decode;
-use sp_core::Bytes;
+use frame_metadata::RuntimeMetadataPrefixed;
+use sp_runtime::traits::SignedExtension;
+pub use sp_version::RuntimeVersion;
 
 use crate::{
     error::Error,
     extrinsic::{self, SignedExtra, Signer, UncheckedExtrinsic},
-    runtimes::Runtime,
+    frame::Call,
     metadata::Metadata,
     rpc::SystemProperties,
-    frame::Call,
-    Encoded
+    runtimes::Runtime,
+    Encoded,
 };
 /// OfflineClientBuilder for constructing a client on an air gapped device
 #[derive(Default)]
 pub struct OfflineClientBuilder<T: Runtime> {
     _marker: std::marker::PhantomData<T>,
-    page_size: Option<u32>,
 }
 
+// TODO create an enum that is T::Hash, Metadata, SystemProperties, RuntimeVersion, Vec<u8>
 /// Required options for building `OfflineClient`.
-pub struct OfflineClientOptions<T: Runtime> {
-    genesis_hash: T::Hash,
-    // TODO figure out how to read in from file
-    metadata: Bytes,
-    // DEV NOTE properties and runtime_version can probs just be hardcoded in a constants file
+pub struct OfflineClientOptions {
+    genesis_hash: Vec<u8>,
+    metadata: Vec<u8>,
     properties: SystemProperties,
     runtime_version: RuntimeVersion,
 }
-
 
 impl<T: Runtime> OfflineClientBuilder<T> {
     /// Create a new `OfflineClientBuilder`
     pub fn new() -> Self {
         Self {
             _marker: std::marker::PhantomData,
-            page_size: None,
         }
     }
 
-    /// Set the page size.
-    pub fn set_page_size(mut self, size: u32) -> Self {
-        self.page_size = Some(size);
-        self
-    }
-
     /// Create a new `OfflineClient`
-    pub fn build(
-        self,
-        opts: OfflineClientOptions<T>,
-    ) -> Result<OfflineClient<T>, Error> {
+    pub fn build(self, opts: OfflineClientOptions) -> Result<OfflineClient<T>, Error> {
         let metadata_prefixed: RuntimeMetadataPrefixed = Decode::decode(&mut &opts.metadata[..])?;
         let metadata: Metadata = metadata_prefixed.try_into()?;
 
+        let genesis_hash: T::Hash = Decode::decode(&mut &opts.genesis_hash[..])?;
+
         Ok(OfflineClient {
-            genesis_hash: opts.genesis_hash,
+            genesis_hash,
             metadata,
             properties: opts.properties,
             runtime_version: opts.runtime_version,
             _marker: PhantomData,
-            page_size: self.page_size.unwrap_or(10),
         })
     }
 }
@@ -88,7 +75,6 @@ pub struct OfflineClient<T: Runtime> {
     properties: SystemProperties,
     runtime_version: RuntimeVersion,
     _marker: PhantomData<(fn() -> T::Signature, T::Extra)>,
-    page_size: u32,
 }
 
 impl<T: Runtime> Clone for OfflineClient<T> {
@@ -99,7 +85,6 @@ impl<T: Runtime> Clone for OfflineClient<T> {
             properties: self.properties.clone(),
             runtime_version: self.runtime_version.clone(),
             _marker: PhantomData,
-            page_size: self.page_size,
         }
     }
 }
@@ -148,7 +133,9 @@ impl<T: Runtime> OfflineClient<T> {
             Send + Sync,
     {
         if signer.nonce().is_none() {
-            return Err(Error::from("Signer needs a nonce set for air gapped extrinsic construction."));
+            return Err(
+                "Signer needs a nonce set for air gapped extrinsic construction.".into(),
+            );
         }
         let account_nonce = signer.nonce().unwrap();
 
@@ -169,44 +156,59 @@ pub mod util {
     //! Utilities for using the offline client
 
     use super::*;
+    use hex;
+    use serde::{Deserialize, Serialize};
     use std::fs::File;
     use std::io::prelude::*;
-    use serde::{Deserialize, Serialize};
-    use hex;
 
+    /// The shape of an RPC JSON response object
     #[derive(Serialize, Deserialize)]
-    struct RPCResponse {
+    struct RpcRes<T> {
         jsonrpc: String,
-        result: String
+        result: T,
     }
 
-    /// Read in runtime metadata from the JSON response to an RPC.
+    /// Read in a response to a RPC call.
     ///
-    /// The is expected to contain a JSON object with the form:
+    /// The file expected to contain a JSON object with the form:
     ///
     /// ```no_run
     /// {"jsonrpc":"2.0","result":"0xddb9934d1ef19d9b1cb1e10857b6e4a24fe6c495d7a8632288235c1412538b84","id":1}
     /// ```
     ///
-    /// where `result` is the the field to return as `Bytes`.
-    pub fn rpc_response_to_bytes(file_name: &str) -> Result<Vec<u8>, Error> {
-        let mut file = File::open(file_name)?;
+    /// where `result` is a field representing scale encoded bytes.
+    pub fn rpc_to_bytes(path: &str) -> Result<Vec<u8>, Error> {
+        let mut file = File::open(path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
 
-        let rpc_response: RPCResponse = serde_json::from_str(&contents)?;
+        let rpc_response: RpcRes<String> = serde_json::from_str(&contents)?;
         let bytes = hex::decode(rpc_response.result)?;
 
         Ok(bytes)
     }
+
+    /// Deserialize RuntimeVersion from the JSON response to the RPC
+    /// `chain_getRuntimeVersion`
+    pub fn rpc_to_runtime_version(path: &str) -> Result<RuntimeVersion, Error> {
+        let mut file = File::open(path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+
+        let rpc_response: RpcRes<RuntimeVersion> = serde_json::from_str(&contents)?;
+
+        Ok(rpc_response.result)
+    }
+
+    /// Deserialize SystemProperties from the JSON response to the RPC
+    /// `system_properties`
+    pub fn rpc_to_properties(path: &str) -> Result<SystemProperties, Error> {
+        let mut file = File::open(path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+
+        let rpc_response: RpcRes<SystemProperties> = serde_json::from_str(&contents)?;
+
+        Ok(rpc_response.result)
+    }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//      #[test]
-//     fn test result_to_bytes() {
-
-//     }
-
-// }

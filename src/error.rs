@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with substrate-subxt.  If not, see <http://www.gnu.org/licenses/>.
 
+use hex::FromHexError;
 use jsonrpsee::{client::RequestError, transport::ws::WsNewDnsError};
 use sp_core::crypto::SecretStringError;
 use sp_runtime::{transaction_validity::TransactionValidityError, DispatchError};
 use thiserror::Error;
-use hex::FromHexError;
 
 use crate::metadata::{Metadata, MetadataError};
 
@@ -59,8 +59,8 @@ pub enum Error {
     #[error("Other error: {0}")]
     Other(String),
     /// Conversion from hex error.
-     #[error("Conversion from hex error: {0}")]
-     FromHex(#[from] FromHexError),
+    #[error("Conversion from hex error: {0}")]
+    FromHex(#[from] FromHexError),
 }
 
 impl From<SecretStringError> for Error {

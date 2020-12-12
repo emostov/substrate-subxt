@@ -65,10 +65,10 @@ mod events;
 pub mod extrinsic;
 mod frame;
 mod metadata;
+pub mod offline_client;
 mod rpc;
 mod runtimes;
 mod subscription;
-pub mod offline_client;
 
 pub use crate::{
     error::Error,
