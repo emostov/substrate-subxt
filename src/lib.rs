@@ -461,7 +461,7 @@ impl<T: Runtime> Client<T> {
 
         let call = self.encode(call)?;
 
-        let current = self.header(None).await?.unwrap().number();
+        let current = self.header(None::<T::Hash>).await?.unwrap().number();
 
         let signed = extrinsic::create_signed(
             &self.runtime_version,
