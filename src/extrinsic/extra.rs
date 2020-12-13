@@ -162,6 +162,7 @@ where
     fn additional_signed(
         &self,
     ) -> Result<Self::AdditionalSigned, TransactionValidityError> {
+        // TODO does the return value here matter? If so return hash of block
         Ok(self.1)
     }
 }
@@ -238,6 +239,7 @@ pub trait SignedExtra<T: System>: SignedExtension {
         tx_version: u32,
         nonce: T::Index,
         genesis_hash: T::Hash,
+        era: Era
     ) -> Self;
 
     /// Returns the transaction extra.
@@ -251,6 +253,7 @@ pub struct DefaultExtra<T: System> {
     tx_version: u32,
     nonce: T::Index,
     genesis_hash: T::Hash,
+    era: Era,
 }
 
 impl<T: System + Balances + Clone + Debug + Eq + Send + Sync> SignedExtra<T>
@@ -271,12 +274,14 @@ impl<T: System + Balances + Clone + Debug + Eq + Send + Sync> SignedExtra<T>
         tx_version: u32,
         nonce: T::Index,
         genesis_hash: T::Hash,
+        era: Era
     ) -> Self {
         DefaultExtra {
             spec_version,
             tx_version,
             nonce,
             genesis_hash,
+            era,
         }
     }
 
@@ -285,7 +290,7 @@ impl<T: System + Balances + Clone + Debug + Eq + Send + Sync> SignedExtra<T>
             CheckSpecVersion(PhantomData, self.spec_version),
             CheckTxVersion(PhantomData, self.tx_version),
             CheckGenesis(PhantomData, self.genesis_hash),
-            CheckEra((Era::Immortal, PhantomData), self.genesis_hash),
+            CheckEra((self.era, PhantomData), self.genesis_hash),
             CheckNonce(self.nonce),
             CheckWeight(PhantomData),
             ChargeTransactionPayment(<T as Balances>::Balance::default()),

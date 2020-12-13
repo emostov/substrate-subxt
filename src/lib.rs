@@ -60,9 +60,13 @@ use sp_core::{
     },
     Bytes,
 };
-pub use sp_runtime::traits::SignedExtension;
+pub use sp_runtime::traits::{
+    Header,
+    SignedExtension
+};
 pub use sp_version::RuntimeVersion;
 use std::marker::PhantomData;
+use sp_runtime::SaturatedConversion;
 
 mod error;
 mod events;
@@ -454,13 +458,18 @@ impl<T: Runtime> Client<T> {
         } else {
             self.account(signer.account_id(), None).await?.nonce
         };
+
         let call = self.encode(call)?;
+
+        let current = self.header(None).await?.unwrap().number();
+
         let signed = extrinsic::create_signed(
             &self.runtime_version,
             self.genesis_hash,
             account_nonce,
             call,
             signer,
+            current.saturated_into::<u64>()
         )
         .await?;
         Ok(signed)
