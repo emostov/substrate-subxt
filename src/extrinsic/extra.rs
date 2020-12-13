@@ -239,7 +239,8 @@ pub trait SignedExtra<T: System>: SignedExtension {
         tx_version: u32,
         nonce: T::Index,
         genesis_hash: T::Hash,
-        era: Era
+        era: Era,
+        current_hash: T::Hash,
     ) -> Self;
 
     /// Returns the transaction extra.
@@ -254,6 +255,7 @@ pub struct DefaultExtra<T: System> {
     nonce: T::Index,
     genesis_hash: T::Hash,
     era: Era,
+    current_hash: T::Hash,
 }
 
 impl<T: System + Balances + Clone + Debug + Eq + Send + Sync> SignedExtra<T>
@@ -274,7 +276,8 @@ impl<T: System + Balances + Clone + Debug + Eq + Send + Sync> SignedExtra<T>
         tx_version: u32,
         nonce: T::Index,
         genesis_hash: T::Hash,
-        era: Era
+        era: Era,
+        current_hash: T::Hash,
     ) -> Self {
         DefaultExtra {
             spec_version,
@@ -282,6 +285,7 @@ impl<T: System + Balances + Clone + Debug + Eq + Send + Sync> SignedExtra<T>
             nonce,
             genesis_hash,
             era,
+            current_hash
         }
     }
 
@@ -290,7 +294,7 @@ impl<T: System + Balances + Clone + Debug + Eq + Send + Sync> SignedExtra<T>
             CheckSpecVersion(PhantomData, self.spec_version),
             CheckTxVersion(PhantomData, self.tx_version),
             CheckGenesis(PhantomData, self.genesis_hash),
-            CheckEra((self.era, PhantomData), self.genesis_hash),
+            CheckEra((self.era, PhantomData), self.current_hash),
             CheckNonce(self.nonce),
             CheckWeight(PhantomData),
             ChargeTransactionPayment(<T as Balances>::Balance::default()),

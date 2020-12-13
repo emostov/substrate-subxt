@@ -65,7 +65,7 @@ pub async fn create_signed<T>(
     nonce: T::Index,
     call: Encoded,
     signer: &(dyn Signer<T> + Send + Sync),
-    current: u64,
+    current: (u64, T::Hash),
 ) -> Result<UncheckedExtrinsic<T>, Error>
 where
     T: Runtime,
@@ -75,13 +75,16 @@ where
     let spec_version = runtime_version.spec_version;
     let tx_version = runtime_version.transaction_version;
     // TODO: allow user to thread down era period
-    let era = Era::mortal(DEFAULT_ERA_PERIOD, current);
+    // TODO: iff 0 < current < 4 panic?
+    // TODO: iff current == 0 make tx immortal
+    let era = Era::mortal(DEFAULT_ERA_PERIOD, current.0);
     let extra: T::Extra = T::Extra::new(
         spec_version,
         tx_version,
         nonce,
         genesis_hash,
-        era
+        era,
+         current.1
     );
     let payload = SignedPayload::<T>::new(call, extra.extra())?;
     let signed = signer.sign(payload).await?;

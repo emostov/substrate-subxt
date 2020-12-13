@@ -66,7 +66,10 @@ pub use sp_runtime::traits::{
 };
 pub use sp_version::RuntimeVersion;
 use std::marker::PhantomData;
-use sp_runtime::SaturatedConversion;
+use sp_runtime::{
+    traits::Block,
+    SaturatedConversion
+};
 
 mod error;
 mod events;
@@ -458,18 +461,17 @@ impl<T: Runtime> Client<T> {
         } else {
             self.account(signer.account_id(), None).await?.nonce
         };
-
         let call = self.encode(call)?;
-
-        let current = self.header(None::<T::Hash>).await?.unwrap().number();
-
+        let current_block = self.block(None::<T::Hash>).await?.unwrap().block;
+        let current_number = (*current_block.header().number()).saturated_into::<u64>();
+        let current_hash = current_block.hash();
         let signed = extrinsic::create_signed(
             &self.runtime_version,
             self.genesis_hash,
             account_nonce,
             call,
             signer,
-            current.saturated_into::<u64>()
+            (current_number, current_hash)
         )
         .await?;
         Ok(signed)
