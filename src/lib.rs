@@ -70,7 +70,6 @@ use sp_runtime::{
     traits::Block,
     SaturatedConversion
 };
-use quote::quote;
 
 mod error;
 mod events;
@@ -92,6 +91,7 @@ pub use crate::{
         SignedExtra,
         Signer,
         UncheckedExtrinsic,
+        DEFAULT_ERA_PERIOD
     },
     frame::*,
     metadata::{
@@ -208,8 +208,6 @@ pub struct SignedOptions {
     /// The period, measured in blocks, that transaction will live for, starting from a checkpoint
     /// block. A good default is 64 (64 * 6secs = 6min 40sec).
     ///
-    /// See below for logical rules:
-    ///
     /// `era_period == None`: immortal transaction.
     /// `0 <= era_period <= 65536`: rounded up to the closest power of 2, starting at 4.
     /// `65536 < era_period`: 65536.
@@ -217,8 +215,10 @@ pub struct SignedOptions {
     pub era_period: Option<u64>,
 }
 
+use quote::{TokenStreamExt, quote};
+use proc_macro2;
 // https://github.com/dtolnay/quote/issues/129#issue-481909264
-fn expand_to_tokens<T : quote::ToTokens>(input: &core::option::Option<T>) -> proc_macro2::TokenStream {
+fn options_to_tokens<T : quote::ToTokens>(input: &core::option::Option<T>) -> proc_macro2::TokenStream {
     match input {
         Some(value) => quote!(core::option::Option::Some(#value)),
         None => quote!(core::option::Option::None)
@@ -228,9 +228,8 @@ fn expand_to_tokens<T : quote::ToTokens>(input: &core::option::Option<T>) -> pro
 // https://github.com/dtolnay/quote/issues/129#issue-481909264
 impl quote::ToTokens for self::SignedOptions {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        let era_period = expand_to_tokens(&self.era_period);
+        let era_period = options_to_tokens(&self.era_period);
 
-        use quote::TokenStreamExt;
         tokens.append_all(quote!(
             SignedOptions {
                 era_period: #era_period
@@ -558,6 +557,7 @@ impl<T: Runtime> Client<T> {
         call: C,
         signer: &(dyn Signer<T> + Send + Sync),
         opts: SignedOptions,
+        // era_period: Option<u64>
     ) -> Result<T::Hash, Error>
     where
         <<T::Extra as SignedExtra<T>>::Extra as SignedExtension>::AdditionalSigned:
@@ -573,6 +573,7 @@ impl<T: Runtime> Client<T> {
         call: C,
         signer: &(dyn Signer<T> + Send + Sync),
         opts: SignedOptions,
+        // era_period: Option<u64>,
     ) -> Result<ExtrinsicSuccess<T>, Error>
     where
         <<T::Extra as SignedExtra<T>>::Extra as SignedExtension>::AdditionalSigned:

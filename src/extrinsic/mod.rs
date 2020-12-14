@@ -45,6 +45,9 @@ use crate::{
     Error,
 };
 
+/// A reasonable default for `era_period`
+pub const DEFAULT_ERA_PERIOD: u64 = 64;
+
 /// UncheckedExtrinsic type.
 pub type UncheckedExtrinsic<T> = sp_runtime::generic::UncheckedExtrinsic<
     <T as System>::Address,
@@ -55,8 +58,6 @@ pub type UncheckedExtrinsic<T> = sp_runtime::generic::UncheckedExtrinsic<
 
 /// SignedPayload type.
 pub type SignedPayload<T> = sp_runtime::generic::SignedPayload<Encoded, Extra<T>>;
-
-const DEFAULT_ERA_PERIOD: u64 = 64;
 
 /// Creates a signed extrinsic. Will create an immortal transaction iff `current`
 /// is `None` or `era_period` == 0
