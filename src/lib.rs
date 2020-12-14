@@ -70,6 +70,7 @@ use sp_runtime::{
     traits::Block,
     SaturatedConversion
 };
+use quote::quote;
 
 mod error;
 mod events;
@@ -198,6 +199,44 @@ pub struct Client<T: Runtime> {
     runtime_version: RuntimeVersion,
     _marker: PhantomData<(fn() -> T::Signature, T::Extra)>,
     page_size: u32,
+}
+
+/// Construction options for a signed extrinsic
+// TODO: tip can go here as well
+#[derive(Clone)]
+pub struct SignedOptions {
+    /// The period, measured in blocks, that transaction will live for, starting from a checkpoint
+    /// block. A good default is 64 (64 * 6secs = 6min 40sec).
+    ///
+    /// See below for logical rules:
+    ///
+    /// `era_period == None`: immortal transaction.
+    /// `0 <= era_period <= 65536`: rounded up to the closest power of 2, starting at 4.
+    /// `65536 < era_period`: 65536.
+    // pub era_period: Option<u64>,
+    pub era_period: Option<u64>,
+}
+
+// https://github.com/dtolnay/quote/issues/129#issue-481909264
+fn expand_to_tokens<T : quote::ToTokens>(input: &core::option::Option<T>) -> proc_macro2::TokenStream {
+    match input {
+        Some(value) => quote!(core::option::Option::Some(#value)),
+        None => quote!(core::option::Option::None)
+    }
+}
+
+// https://github.com/dtolnay/quote/issues/129#issue-481909264
+impl quote::ToTokens for self::SignedOptions {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        let era_period = expand_to_tokens(&self.era_period);
+
+        use quote::TokenStreamExt;
+        tokens.append_all(quote!(
+            SignedOptions {
+                era_period: #era_period
+            }
+        ));
+    }
 }
 
 impl<T: Runtime> Clone for Client<T> {
@@ -451,6 +490,7 @@ impl<T: Runtime> Client<T> {
         &self,
         call: C,
         signer: &(dyn Signer<T> + Send + Sync),
+        opts: SignedOptions,
     ) -> Result<UncheckedExtrinsic<T>, Error>
     where
         <<T::Extra as SignedExtra<T>>::Extra as SignedExtension>::AdditionalSigned:
@@ -462,16 +502,24 @@ impl<T: Runtime> Client<T> {
             self.account(signer.account_id(), None).await?.nonce
         };
         let call = self.encode(call)?;
-        let current_block = self.block(None::<T::Hash>).await?.unwrap().block;
-        let current_number = (*current_block.header().number()).saturated_into::<u64>();
-        let current_hash = current_block.hash();
+        let era_opts = if opts.era_period.is_some() {
+            let era_period = opts.era_period.unwrap();
+            let current_block = self.block(None::<T::Hash>).await?.unwrap().block;
+            let current_number = (*current_block.header().number()).saturated_into::<u64>();
+            let current_hash = current_block.hash();
+
+            Some((era_period, current_number, current_hash))
+        } else {
+            None
+        };
+
         let signed = extrinsic::create_signed(
             &self.runtime_version,
             self.genesis_hash,
             account_nonce,
             call,
             signer,
-            (current_number, current_hash)
+            era_opts,
         )
         .await?;
         Ok(signed)
@@ -509,12 +557,13 @@ impl<T: Runtime> Client<T> {
         &self,
         call: C,
         signer: &(dyn Signer<T> + Send + Sync),
+        opts: SignedOptions,
     ) -> Result<T::Hash, Error>
     where
         <<T::Extra as SignedExtra<T>>::Extra as SignedExtension>::AdditionalSigned:
             Send + Sync,
     {
-        let extrinsic = self.create_signed(call, signer).await?;
+        let extrinsic = self.create_signed(call, signer, opts).await?;
         self.submit_extrinsic(extrinsic).await
     }
 
@@ -523,12 +572,13 @@ impl<T: Runtime> Client<T> {
         &self,
         call: C,
         signer: &(dyn Signer<T> + Send + Sync),
+        opts: SignedOptions,
     ) -> Result<ExtrinsicSuccess<T>, Error>
     where
         <<T::Extra as SignedExtra<T>>::Extra as SignedExtension>::AdditionalSigned:
             Send + Sync,
     {
-        let extrinsic = self.create_signed(call, signer).await?;
+        let extrinsic = self.create_signed(call, signer, opts).await?;
         let decoder = self.events_decoder::<C>();
         self.submit_and_watch_extrinsic(extrinsic, decoder).await
     }

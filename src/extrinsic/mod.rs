@@ -58,14 +58,15 @@ pub type SignedPayload<T> = sp_runtime::generic::SignedPayload<Encoded, Extra<T>
 
 const DEFAULT_ERA_PERIOD: u64 = 64;
 
-/// Creates a signed extrinsic
+/// Creates a signed extrinsic. Will create an immortal transaction iff `current`
+/// is `None` or `era_period` == 0
 pub async fn create_signed<T>(
     runtime_version: &RuntimeVersion,
     genesis_hash: T::Hash,
     nonce: T::Index,
     call: Encoded,
     signer: &(dyn Signer<T> + Send + Sync),
-    current: (u64, T::Hash),
+    era_opts: Option<(u64, u64, T::Hash)>,
 ) -> Result<UncheckedExtrinsic<T>, Error>
 where
     T: Runtime,
@@ -74,17 +75,18 @@ where
 {
     let spec_version = runtime_version.spec_version;
     let tx_version = runtime_version.transaction_version;
-    // TODO: allow user to thread down era period
-    // TODO: iff 0 < current < 4 panic?
-    // TODO: iff current == 0 make tx immortal
-    let era = Era::mortal(DEFAULT_ERA_PERIOD, current.0);
+    let era_info = match era_opts {
+        Some((period, cur_num, cur_hash)) => {
+            (Era::mortal(period, cur_num), cur_hash)
+        },
+        None => (Era::Immortal, genesis_hash)
+    };
     let extra: T::Extra = T::Extra::new(
         spec_version,
         tx_version,
         nonce,
         genesis_hash,
-        era,
-         current.1
+        era_info
     );
     let payload = SignedPayload::<T>::new(call, extra.extra())?;
     let signed = signer.sign(payload).await?;

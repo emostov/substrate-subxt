@@ -40,7 +40,7 @@ pub fn call(s: Structure) -> TokenStream {
     let bindings = utils::bindings(&s);
     let fields = utils::fields(&bindings);
     let marker = utils::marker_field(&fields).unwrap_or_else(|| format_ident!("_"));
-    let filtered_fields = utils::filter_fields(&fields, &marker);
+    let filtered_fields = utils::filter_fields(&fields, &marker); // filter out phantom data
     let args = utils::fields_to_args(&filtered_fields);
     let build_struct = utils::build_struct(ident, &fields);
     let call_trait = format_ident!("{}CallExt", call_name.to_camel_case());
@@ -64,6 +64,7 @@ pub fn call(s: Structure) -> TokenStream {
             fn #call<'a>(
                 &'a self,
                 signer: &'a (dyn #subxt::Signer<T> + Send + Sync),
+                opts: &#subxt::SignedOptions,
                 #args
             ) -> core::pin::Pin<Box<dyn core::future::Future<Output = Result<T::Hash, #subxt::Error>> + Send + 'a>>;
 
@@ -71,6 +72,7 @@ pub fn call(s: Structure) -> TokenStream {
             fn #call_and_watch<'a>(
                 &'a self,
                 signer: &'a (dyn #subxt::Signer<T> + Send + Sync),
+                opts: &#subxt::SignedOptions
                 #args
             ) -> core::pin::Pin<Box<dyn core::future::Future<Output = Result<#subxt::ExtrinsicSuccess<T>, #subxt::Error>> + Send + 'a>>;
         }
@@ -82,19 +84,21 @@ pub fn call(s: Structure) -> TokenStream {
             fn #call<'a>(
                 &'a self,
                 signer: &'a (dyn #subxt::Signer<T> + Send + Sync),
+                opts: &#subxt::SignedOptions
                 #args
             ) -> core::pin::Pin<Box<dyn core::future::Future<Output = Result<T::Hash, #subxt::Error>> + Send + 'a>> {
                 let #marker = core::marker::PhantomData::<T>;
-                Box::pin(self.submit(#build_struct, signer))
+                Box::pin(self.submit(#build_struct, signer, opts))
             }
 
             fn #call_and_watch<'a>(
                 &'a self,
                 signer: &'a (dyn #subxt::Signer<T> + Send + Sync),
+                opts: &#subxt::SignedOptions,
                 #args
             ) -> core::pin::Pin<Box<dyn core::future::Future<Output = Result<#subxt::ExtrinsicSuccess<T>, #subxt::Error>> + Send + 'a>> {
                 let #marker = core::marker::PhantomData::<T>;
-                Box::pin(self.watch(#build_struct, signer))
+                Box::pin(self.watch(#build_struct, signer, opts))
             }
         }
     }
